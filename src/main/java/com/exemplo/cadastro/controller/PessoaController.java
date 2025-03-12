@@ -41,8 +41,19 @@ public class PessoaController {
 
     @GetMapping("/editar/{id}")
     public String editar(@PathVariable Long id, Model model) {
-        model.addAttribute("pessoa", service.buscarPorId(id).orElseThrow());
+        Pessoa pessoa = service.buscarPorId(id).orElseThrow(() -> new IllegalArgumentException("ID inválido: " + id));
+        model.addAttribute("pessoa", pessoa);
         return "pessoas/form";
+    }
+
+    @PostMapping("/atualizar/{id}")
+    public String atualizar(@PathVariable Long id, @Valid @ModelAttribute Pessoa pessoa, BindingResult result) {
+        if (result.hasErrors()) {
+            return "pessoas/form";
+        }
+        pessoa.setId(id);
+        service.salvar(pessoa);
+        return "redirect:/pessoas";
     }
 
     @GetMapping("/excluir/{id}")
